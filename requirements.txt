@@ -9,3 +9,7 @@ transformers>=4.0.0
 opencv-python>=4.5.0
 jupyter>=1.0.0
 matplotlib>=3.5.0
+streamlit
+langchain_deepseek
+langchain_core
+langchain
