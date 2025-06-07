@@ -29,8 +29,7 @@ def read_prompt_file(dept):
     with open(os.path.join(prompt_root,f"{dept}.md"), "r") as file:
         return file.read()
 
-st.sidebar.header("助手配置")
-selected_model = st.sidebar.selectbox("选择大模型",("DeepSeek-Chat", "Medical_Qwen3"))
+st.sidebar.markdown("### 助手配置")
 domain = st.sidebar.selectbox("选择助手领域",("通用领域", "医疗助手", "教育助手", "法律助手"))
 
 if domain == "医疗助手":
@@ -42,22 +41,16 @@ else:
     title = domain
     system = f"你是一个专业的{domain}助手。请根据用户的问题提供准确、有帮助的回答。"
 
-# 侧边栏信息
-st.sidebar.header("模型配置")
-if st.sidebar.checkbox("启用流式输出", value=True):
-    stream_output = True
-else:
-    stream_output = False
-
+st.sidebar.markdown("### 模型配置")
+selected_model = st.sidebar.selectbox("选择大模型",("DeepSeek-Chat", "Medical_Qwen3"))
 temperature = st.sidebar.slider("温度", min_value=0.0, max_value=1.0, value=0.5, step=0.1)
 max_tokens = st.sidebar.slider("最大生成Token数", min_value=10, max_value=2048, value=512, step=10)
 
-
-st.sidebar.header("使用说明")
+    
+st.sidebar.markdown("### 配置说明")
 st.sidebar.info(
-    "选择一个领域后，并选择一个模型参数。在输入框中输入您的问题，然后点击发送按钮即可开始对话。"
+    "温度：控制生成文本的随机性，值越高，生成的文本越随机。\n最大生成Token数：控制生成文本的长度，值越高，生成的文本越长。"
 )
-
 
 # 自定义CSS，美化界面
 st.markdown("""
@@ -121,8 +114,7 @@ llm = Model(
     base_url=base_url,
     api_key=api_key,
     temperature=temperature,
-    max_tokens=max_tokens,
-    streaming=stream_output
+    max_tokens=max_tokens
     )
 
 # 定义提示模板
