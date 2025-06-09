@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from utils.load_info import load_info
-from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
 from langchain_deepseek import ChatDeepSeek
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -15,7 +15,7 @@ prompt_root = os.path.join(project_root, 'data/Prompt')
 # LangChain 配置
 os.environ["LANGCHAIN_TRACING"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = "AIGC"
-os.environ["LANGCHAIN_API_KEY"] = load_info("keys","LANGCHAIN_API_KEY")
+os.environ["LANGCHAIN_API_KEY"] = load_info("keys")["LANGCHAIN_API_KEY"]
 
 # 设置页面标题和图标
 st.set_page_config(page_title="AIGC 聊天机器人", page_icon="🤖")
@@ -41,12 +41,14 @@ else:
     title = domain
     system = f"你是一个专业的{domain}助手。请根据用户的问题提供准确、有帮助的回答。"
 
+# 模型列表
+models = load_info("models").keys()
+
 st.sidebar.markdown("### 模型配置")
-selected_model = st.sidebar.selectbox("选择大模型",("DeepSeek-Chat", "Medical_Qwen3"))
+selected_model = st.sidebar.selectbox("选择大模型",models)
 temperature = st.sidebar.slider("温度", min_value=0.0, max_value=1.0, value=0.5, step=0.1)
 max_tokens = st.sidebar.slider("最大生成Token数", min_value=10, max_value=2048, value=512, step=10)
 
-    
 st.sidebar.markdown("### 配置说明")
 st.sidebar.info(
     "温度：控制生成文本的随机性，值越高，生成的文本越随机。\n最大生成Token数：控制生成文本的长度，值越高，生成的文本越长。"
@@ -84,7 +86,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title(f"💬 AIGC {title}")
-st.caption("Powered by AIE-52 G5")
+st.caption(f"[{selected_model}] Powered by AIE-52 G5")
 
 # 初始化聊天记录 (使用 session_state)
 if "messages" not in st.session_state:
@@ -97,7 +99,7 @@ for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
 # 获取模型配置
-model_info = load_info("models", selected_model)
+model_info = load_info("models")[selected_model]
 print(f"模型配置: {model_info}")
 model_name = model_info["model_name"]
 base_url = model_info["base_url"]
@@ -106,7 +108,7 @@ api_key = model_info["api_key"]
 if selected_model == "DeepSeek-Chat":
     Model = ChatDeepSeek
 else:
-    Model = OpenAI
+    Model = ChatOpenAI
 
 # 定义模型
 llm = Model(
@@ -114,7 +116,8 @@ llm = Model(
     base_url=base_url,
     api_key=api_key,
     temperature=temperature,
-    max_tokens=max_tokens
+    max_tokens=max_tokens,
+    streaming=True
     )
 
 # 定义提示模板
@@ -134,21 +137,27 @@ if prompt := st.chat_input("请输入您的问题..."):
 
     # 获取机器人回复 (显示加载状态)
     with st.chat_message("assistant"):
-        with st.spinner("思考中..."):
-            # 创建空白占位符用于流式输出
-            response_placeholder = st.empty()
-            response_content = ""
-            try:
+        try:
+            print("开始处理消息...")
+            with st.spinner("思考中..."):
+                # 创建空白占位符用于流式输出
+                response_placeholder = st.empty()
+                response_content = ""
+                print("开始处理消息...")
+                print(f"处理消息: {prompt}")
                 # 使用LangChain处理消息并实现流式输出
                 for chunk in chain.stream({"user_input": prompt}):
+                    print('开始处理消息的片段...')
+                    # print(chunk.content, end='', flush=True)
                     response_content += chunk
                     response_placeholder.markdown(response_content + "▌")  # 添加光标效果
                 
                 # 完成后显示最终内容
                 response_placeholder.markdown(response_content)
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
-                response_placeholder.markdown("抱歉，我无法回答您的问题。")
+
+        except Exception as e:
+            print(f"Error: {e}")
+            response_placeholder.markdown("抱歉，我无法回答您的问题。")
     
     # 将机器人回复添加到聊天记录
     st.session_state.messages.append({"role": "assistant", "content": response_content})
