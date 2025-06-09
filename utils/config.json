@@ -12,7 +12,7 @@
         },
         "Qwen3-14B": {
             "model_name": "unsloth/Qwen3-14B-GGUF",
-            "base_url": "https://ms-ens-51dda1d6-fa99.api-inference.modelscope.cn/v1",
+            "base_url": "https://ms-ens-a77cf680-e8d5.api-inference.modelscope.cn/v1",
             "api_key": "2fd43260-bee2-44df-998d-7c8b24495b59"
         },
         "Hunyuan": {
