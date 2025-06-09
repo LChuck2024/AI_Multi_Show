@@ -7,8 +7,18 @@
         },
         "Medical_Qwen3": {
             "model_name": "Medical_Qwen3_8B_Large_Language_Model",
-            "base_url": "http://direct.virtaicloud.com:25595/v1/",
+            "base_url": "http://direct.virtaicloud.com:25595/v1",
             "api_key": "EMPTY"
+        },
+        "Qwen3-14B": {
+            "model_name": "unsloth/Qwen3-14B-GGUF",
+            "base_url": "https://ms-ens-a77cf680-e8d5.api-inference.modelscope.cn/v1",
+            "api_key": "2fd43260-bee2-44df-998d-7c8b24495b59"
+        },
+        "Hunyuan": {
+            "model_name": "hunyuan-lite",
+            "base_url": "https://api.hunyuan.cloud.tencent.com/v1",
+            "api_key": "sk-zREqirmUwDuCix82vrCyrpJ3k1HPiWvOAojGWE7KyyTMzCiB"
         }
     },
     "keys": {
