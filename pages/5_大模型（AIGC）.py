@@ -153,7 +153,18 @@ if prompt := st.chat_input("请输入您的问题..."):
                     response_placeholder.markdown(response_content + "▌")  # 添加光标效果
                 
                 # 完成后显示最终内容
-                response_placeholder.markdown(response_content)
+                import re
+                think_content_match = re.search(r'<think>(.*?)</think>', response_content, re.DOTALL)
+                if think_content_match:
+                    think_text = think_content_match.group(1).strip()
+                    # 移除原始response_content中的think标签内容
+                    response_content_without_think = re.sub(r'<think>.*?</think>', '', response_content, flags=re.DOTALL)
+                    st.markdown("\n") # 在</think>标签后进行换行
+                    with st.expander("点击查看思考内容"): # 设置点击可以进行收起来
+                        st.markdown(think_text)
+                    response_placeholder.markdown(response_content_without_think)
+                else:
+                    response_placeholder.markdown(response_content)
 
         except Exception as e:
             print(f"Error: {e}")
